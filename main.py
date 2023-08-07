@@ -1,16 +1,30 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import requests
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class SwapiIter:
+
+    def __init__(self):
+        pass
+
+    def __iter__(self):
+        self.next_page = 'https://swapi.py4e.com/api/people/'
+        self.results = []
+        self.i = -1
+        return self
+
+    def __next__(self):
+        self.i += 1
+        if len(self.results) >= self.i:
+            if not self.next_page:
+                raise StopIteration
+            data = requests.get(self.next_page).json()
+            self.next_page = data['next']
+            self.results = data['results']
+            self.i = 0
+
+        return self.results[self.i]
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+swapi = SwapiIter()
+for item in swapi:
+    print(item)
