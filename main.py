@@ -1,30 +1,51 @@
-import requests
+class FlatIterator:
 
-
-class SwapiIter:
-
-    def __init__(self):
-        pass
+    def __init__(self, list_of_list):
+        self.list_of_list = list_of_list
 
     def __iter__(self):
-        self.next_page = 'https://swapi.py4e.com/api/people/'
-        self.results = []
-        self.i = -1
+        self.list_of_list_i = -1
+        self.values = []
+        self.values_i = -1
         return self
 
     def __next__(self):
-        self.i += 1
-        if len(self.results) >= self.i:
-            if not self.next_page:
+        self.values_i += 1
+        if self.values_i >= len(self.values):
+            self.list_of_list_i += 1
+            if self.list_of_list_i >= len(self.list_of_list):
                 raise StopIteration
-            data = requests.get(self.next_page).json()
-            self.next_page = data['next']
-            self.results = data['results']
-            self.i = 0
-
-        return self.results[self.i]
+            self.values = self.list_of_list[self.list_of_list_i]
+            self.values_i = 0
+        return self.values[self.values_i]
 
 
-swapi = SwapiIter()
-for item in swapi:
-    print(item)
+# list_of_lists_1 = [
+#     ['a', 'b', 'c'],
+#     ['d', 'e', 'f', 'h', False],
+#     [1, 2, None]
+# ]
+#
+# for item in FlatIterator(list_of_lists_1):
+#     print(item)
+
+def test_1():
+
+    list_of_lists_1 = [
+        ['a', 'b', 'c'],
+        ['d', 'e', 'f', 'h', False],
+        [1, 2, None]
+    ]
+
+    for flat_iterator_item, check_item in zip(
+            FlatIterator(list_of_lists_1),
+            ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None]
+    ):
+
+        assert flat_iterator_item == check_item
+
+    assert list(FlatIterator(list_of_lists_1)) == ['a', 'b', 'c', 'd', 'e', 'f', 'h', False, 1, 2, None]
+
+
+if __name__ == '__main__':
+    test_1()
